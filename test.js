@@ -9,7 +9,7 @@ var uuidGen = require('node-uuid'),
     buckets = 1000,
     results = {};
 
-var csvStream = csv.createWriteStream({headers: false}),
+var csvStream = csv.createWriteStream({headers: true}),
     writableStream = fs.createWriteStream('test.csv');
 
 writableStream.on('finish', function() {
