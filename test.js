@@ -3,9 +3,18 @@
 var uuidGen = require('node-uuid'),
     async = require('async'),
     crypto = require('crypto'),
+    csv = require('fast-csv'),
+    fs = require('fs'),
     sampleSize = 10000000, // 10 million
     buckets = 1000,
     results = {};
+
+var csvStream = csv.createWriteStream({headers: false}),
+    writableStream = fs.createWriteStream('test.csv');
+
+writableStream.on('finish', function() {
+    console.log('done writing csv');
+})
 
 function parse(uuid) {
     var id = uuid.split('-').pop();
@@ -20,7 +29,6 @@ function placeInBucket(modulo) {
     if (!results[modulo]) {
         results[modulo] = 0;
     }
-
     results[modulo] += 1;
 }
 
@@ -31,6 +39,12 @@ function progressReport(count, sampleSize, iterationSlice) {
 }
 
 function statisticsReport() {
+    var keys = Object.keys(results);
+    csvStream.pipe(writableStream);
+    keys.forEach(function (key) {
+        csvStream.write({bucket: key, count: results[key]})
+    });
+    csvStream.end();
     console.log(results);
 }
 
